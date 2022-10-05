@@ -1,0 +1,82 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+
+  url = env("DATABASE_URL")
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  title       String
+  images      String[]
+  price       Float
+  description String?
+  menuId      Int      @map("menu_id")
+  menu        Menu     @relation(fields: [menuId], references: [id])
+  categoryId  Int      @map("category_id")
+  category    Category @relation(fields: [categoryId], references: [id])
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("products")
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  image       String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  Product     Product[]
+
+  @@map("categories")
+}
+
+model Menu {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  image       String?
+  parentId    Int?      @map("parent_id")
+  parent      Menu?     @relation("ParentToChildren", fields: [parentId], references: [id])
+  children    Menu[]    @relation("ParentToChildren")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  Product     Product[]
+
+  @@map("menus")
+}
+
+model OptionCategory {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  shouseCount Int      @map("shouse_count")
+  required    Boolean
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  Option      Option[]
+
+  @@map("option_categories")
+}
+
+model Option {
+  id               Int            @id @default(autoincrement())
+  name             String
+  description      String?
+  price            Float
+  productId        Int            @map("product_id")
+  optionCategoryId Int            @map("option_category_id")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+  OptionCategory   OptionCategory @relation(fields: [optionCategoryId], references: [id])
+
+  @@map("options")
+}
